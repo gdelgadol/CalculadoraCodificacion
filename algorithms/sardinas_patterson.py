@@ -36,14 +36,12 @@ def generate_c_infinity(c):
             n += 1
             cn = generate_cn(c, n)
             print('c_{}'.format(n), c_infinity)
-    return c_infinity
+    return c_infinity, cs
 
 
 def sardinas_patterson_theorem(c):
-    c_infinity = generate_c_infinity(c)
-    return len(c.intersection(c_infinity)) == 0
-def check_decodability(c):
-    if sardinas_patterson_theorem(c):
-        print(c, 'is uniquely decodable')
-    else:
-        print(c, 'is not uniquely decodable')
+    c_infinity, cs = generate_c_infinity(c)
+    flag = False
+    if len(c.intersection(c_infinity)) == 0:
+        flag = True
+    return {"flag": flag, "c_infinity": c_infinity, "cs": cs, "C_inf intersection C": c.intersection(c_infinity)}

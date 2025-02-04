@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from algorithms.shannon_fano import shannon_fano
 from algorithms.huffman import huffman
 from algorithms.tunstall import tunstall
+from algorithms.sardinas_patterson import sardinas_patterson_theorem
 
 app = FastAPI()
 
@@ -40,3 +41,18 @@ def encode_huffman(data: HuffmanInput):
 def encode_tunstall(data: TunstallInput):
     result = tunstall(data.symbols, data.probabilities, data.n, data.length)
     return result
+
+@app.post("/sardinas-patterson")
+def check_decodability(data: list[str]):
+    c = set(data)
+    if sardinas_patterson_theorem(c)["flag"]:
+        return {"message": "Es univocamente decodificable",
+                "C_infinity": sardinas_patterson_theorem(c)["c_infinity"],
+                "cs": sardinas_patterson_theorem(c)["cs"],
+                "C_inf intersection C": sardinas_patterson_theorem(c)["C_inf intersection C"]}
+    else:
+        return {"message": "No es univocamente decodificable",
+                "C_infinity": sardinas_patterson_theorem(c)["c_infinity"],
+                "cs": sardinas_patterson_theorem(c)["cs"],
+                "C_inf intersection C": sardinas_patterson_theorem(c)["C_inf intersection C"]}
+
