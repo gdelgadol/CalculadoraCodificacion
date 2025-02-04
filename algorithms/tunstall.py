@@ -1,55 +1,78 @@
-import heapq
 import math
+from heapq import heappush, heappop
 
 class TunstallNode:
-    def __init__(self, symbols, probability, code=""):
-        self.symbols = symbols  # Symbols in this node
+    def __init__(self, probability, code=""):
         self.probability = probability  # Probability of this node
         self.children = []  # Child nodes
         self.code = code  # Assigned code
 
     def __lt__(self, other):
-        """ Sorting for max heap: expand highest probability first """
-        return (self.probability, tuple(self.symbols)) > (other.probability, tuple(other.symbols))  # Max heap
+        return self.probability > other.probability  # Max heap
 
-def tunstall(symbols, probabilities, n):
-    """
-    Generalized n-ary Tunstall encoding.
+def get_leaves(node):
+    if not node.children:
+        return [node]
+    leaves = []
+    for child in node.children:
+        leaves.extend(get_leaves(child))
+    return leaves
 
-    :param symbols: List of symbols
-    :param probabilities: Corresponding probabilities
-    :param n: Size of the coding alphabet (binary = 2, ternary = 3, etc.)
-    :return: A dictionary with Tunstall codes and tree construction steps
-    """
+def tunstall(symbols, probabilities, n, length):
     if n < 2:
-        raise ValueError("n must be at least 2 (binary coding or higher)")
+        raise ValueError("Dz must be at least 2 (binary coding or higher)")
 
     # Step 1: Initialize priority queue (max heap) with root node
     root = TunstallNode(symbols, sum(probabilities))
-    heap = [(-root.probability, root)]  # Max heap (negative probability for heapq)
-    codebook = {}
-    steps = []
+    heap = []
+    for i in range(len(symbols)):
+        child = TunstallNode(probabilities[i], code=str(symbols[i]))
+        root.children.append(child)
+        heappush(heap, (-child.probability, child))
     
+    codebook = []
+    steps = []
+    iterations = math.floor(((n ** length) - 1) / (len(symbols) - 1)) - 1
+    num_leaves = 1 + ((iterations + 1) * (len(symbols) - 1))
     # Step 2: Expand nodes until we can't anymore
-    while heap:
-        _, node = heapq.heappop(heap)  # Expand the highest probability node
-        total_prob = sum(probabilities)  # Normalize probabilities
-
-        if len(node.code) >= math.ceil(math.log(len(symbols), n)):  
-            # Stop when we've reached the dictionary size limit
-            codebook["".join(node.symbols)] = node.code
-            continue
-
+    while iterations > 0:
+        _, node = heappop(heap)  # Expand the highest probability node
         # Expand the node into `n` children
         new_children = []
-        for j, s in enumerate(symbols):
-            child_prob = probabilities[j] * (node.probability / total_prob)  # Distribute probability
-            child_code = node.code + str(j)  # Assign code in left-to-right order
-            child = TunstallNode([s], child_prob, child_code)
+        for j in range(len(symbols)):
+            child_prob = probabilities[j] * (node.probability)
+            child = TunstallNode(child_prob, code=node.code + str(symbols[j]))
             node.children.append(child)
-            new_children.append({"symbol": s, "probability": child_prob, "code": child_code})
-            heapq.heappush(heap, (-child.probability, child))  # Push into heap
+            new_children.append(child)
+            heappush(heap, (-child.probability, child))
+        steps.append({"expanded": node.code, "new_nodes": new_children})
+        iterations -= 1
 
-        steps.append({"expanded": node.symbols, "new_nodes": new_children})
+    # Step 3: Assign codes to leaf nodes
+    alphabet = [str(i) for i in range(n)]  # Create numeric alphabet
+    codes = []
+    queue = [""]  # Start with an empty combination
 
+    while queue:
+        current = queue.pop(0)
+
+        # If we have reached the required length, store the result
+        if len(current) == length:
+            codes.append(current)
+
+            # Stop if we reach the desired limit
+            if len(codes) >= num_leaves:
+                break
+        else:
+            # Append each digit in the alphabet to form new combinations
+            for digit in alphabet:
+                queue.append(current + digit)
+
+    # Ensure we have enough codes
+    if len(codes) < num_leaves:
+        raise ValueError("Not enough codes generated to match the number of leaves")
+
+    leaves = get_leaves(root)
+    for i in range(num_leaves):
+        codebook.append({"Word": leaves[i].code, "Code": codes[i]})
     return {"encoding": codebook, "steps": steps}

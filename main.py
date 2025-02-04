@@ -20,6 +20,7 @@ class TunstallInput(BaseModel):
     symbols: list[str]
     probabilities: list[float]
     n: int
+    length: int
 
 @app.get("/")
 def home():
@@ -37,5 +38,5 @@ def encode_huffman(data: HuffmanInput):
 
 @app.post("/tunstall")
 def encode_tunstall(data: TunstallInput):
-    result = tunstall(data.symbols, data.probabilities, data.n)
+    result = tunstall(data.symbols, data.probabilities, data.n, data.length)
     return result
