@@ -8,7 +8,9 @@ class HuffmanNode:
         self.children = []
         self.code = ""
 
-    def __lt__(self, other): 
+    def __lt__(self, other):
+        if self.probability == other.probability:
+            return self.symbols < other.symbols 
         return self.probability < other.probability
 
 def huffman(symbols, probabilities, n=2):
