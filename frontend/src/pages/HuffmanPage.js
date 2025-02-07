@@ -105,7 +105,7 @@ function HuffmanPage() {
       </div>
 
       {/* Right Side - Huffman Tree & Results */}
-      <div style={{ width: "55%", textAlign: "center" }}>
+      <div style={{ width: "50%", textAlign: "center" }}>
         {data ? (
           <>
             <HuffmanTree steps={data.steps} n={n} />
