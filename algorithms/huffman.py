@@ -14,13 +14,13 @@ class HuffmanNode:
         return self.probability < other.probability
     
 def get_entropy(probabilities,n):
-    return (-sum(p * math.log2(p) for p in probabilities))/math.log2(n)
+    return round((-sum(p * math.log2(p) for p in probabilities))/math.log2(n),4)
 
 def get_average_length(encoding, probabilities, symbols):
     sum = 0
     for i in range(len(probabilities)):
         sum += len(encoding[symbols[i]]) * probabilities[i]
-    return sum
+    return round(sum,4)
 
 def huffman(symbols, probabilities, n=2):
     if n < 2:
@@ -78,5 +78,7 @@ def huffman(symbols, probabilities, n=2):
     h_f = get_entropy(probabilities,n)
 
     av_length = get_average_length(encoding, probabilities, symbols)
+    
+    efficiency = round((h_f / av_length)*100,3)
 
-    return {"encoding": encoding, "steps": steps, "entropy": h_f, "average_length": av_length, "efficiency": h_f / av_length}
+    return {"encoding": encoding, "steps": steps, "entropy": h_f, "average_length": av_length, "efficiency": efficiency}
