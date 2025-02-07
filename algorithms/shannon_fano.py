@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 def shannon_fano(symbols, probabilities):
     items = list(zip(symbols, probabilities))
@@ -6,6 +7,15 @@ def shannon_fano(symbols, probabilities):
 
     codes = {symbol: "" for symbol, _ in items}
     steps = []
+
+    def get_entropy(probabilities,n):
+        return (-sum(p * math.log2(p) for p in probabilities))/math.log2(n)
+
+    def get_average_length(encoding, probabilities, symbols):
+        sum = 0
+        for i in range(len(probabilities)):
+            sum += len(encoding[symbols[i]]) * probabilities[i]
+        return sum
 
     def divide_and_assign(symbols_probs, depth=0):
         if len(symbols_probs) == 1:
@@ -45,6 +55,7 @@ def shannon_fano(symbols, probabilities):
         divide_and_assign(right, depth + 1)
 
     divide_and_assign(items)
-
-    return {"encoding": codes, "steps": steps}
+    entropy = get_entropy(probabilities,2)
+    average_length = get_average_length(codes, probabilities, symbols)
+    return {"encoding": codes, "steps": steps, "entropy": entropy, "average_length": average_length, "efficiency": entropy/average_length}
 

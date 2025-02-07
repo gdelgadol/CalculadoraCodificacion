@@ -8,7 +8,16 @@ class TunstallNode:
         self.code = code
 
     def __lt__(self, other):
-        return self.probability > other.probability 
+        return self.probability > other.probability
+    
+def get_entropy(probabilities,n):
+        return (-sum(p * math.log2(p) for p in probabilities))/math.log2(n)
+
+def get_average_length(encoding, probabilities, symbols):
+        sum = 0
+        for i in range(len(probabilities)):
+            sum += len(encoding[symbols[i]]) * probabilities[i]
+        return sum
 
 def get_leaves(node):
     if not node.children:
@@ -67,4 +76,7 @@ def tunstall(symbols, probabilities, n, length):
     leaves = get_leaves(root)
     for i in range(num_leaves):
         codebook.append({"Word": leaves[i].code, "Code": codes[i]})
-    return {"encoding": codebook, "steps": steps}
+
+    entropy = get_entropy(probabilities,n)
+
+    return {"encoding": codebook, "steps": steps, "entropy": entropy}
