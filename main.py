@@ -4,8 +4,19 @@ from algorithms.shannon_fano import shannon_fano
 from algorithms.huffman import huffman
 from algorithms.tunstall import tunstall
 from algorithms.sardinas_patterson import sardinas_patterson_theorem
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Ensure correct frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Define request model
 class ShannonFanoInput(BaseModel):
@@ -24,26 +35,26 @@ class TunstallInput(BaseModel):
     length: int
 
 @app.get("/")
-def home():
+async def home():
     return {"message": "Algorithm Visualizer API"}
 
 @app.post("/shannon-fano")
-def encode_shannon_fano(data: ShannonFanoInput):
+async def encode_shannon_fano(data: ShannonFanoInput):
     result = shannon_fano(data.symbols, data.probabilities)
     return {"encoding": result}
 
 @app.post("/huffman")
-def encode_huffman(data: HuffmanInput):
+async def encode_huffman(data: HuffmanInput):
     result = huffman(data.symbols, data.probabilities, data.n)
     return result
 
 @app.post("/tunstall")
-def encode_tunstall(data: TunstallInput):
+async def encode_tunstall(data: TunstallInput):
     result = tunstall(data.symbols, data.probabilities, data.n, data.length)
     return result
 
 @app.post("/sardinas-patterson")
-def check_decodability(data: list[str]):
+async def check_decodability(data: list[str]):
     c = set(data)
     if sardinas_patterson_theorem(c)["flag"]:
         return {"message": "Es univocamente decodificable",
