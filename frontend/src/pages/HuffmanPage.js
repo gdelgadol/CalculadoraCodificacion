@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import HuffmanTree from "../components/HuffmanTree";
+import ReactMarkdown from "react-markdown";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 
 function HuffmanPage() {
   const [symbols, setSymbols] = useState("");
@@ -109,6 +112,17 @@ function HuffmanPage() {
         {data ? (
           <>
             <HuffmanTree steps={data.steps} n={n} />
+            <div>
+              <ReactMarkdown rehypePlugins={[rehypeKatex]}>
+                {`
+                  Entropy H(𝓕): ${data.entropy}
+                  
+                  Average Length L(C): ${data.average_length}
+                  
+                  Efficiency (η): ${data.efficiency}
+                `}
+              </ReactMarkdown>
+            </div>
           </>
         ) : (
           <p>Enter data and submit.</p>

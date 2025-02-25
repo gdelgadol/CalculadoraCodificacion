@@ -25,7 +25,7 @@ def get_average_length(encoding, probabilities, symbols):
     sum = 0
     for i in range(len(probabilities)):
         symbol = symbols[i]
-        if symbol.startswith("DUMMY_"):
+        if symbol.startswith("□"):
             continue
         if symbol in encoding:
             sum += len(encoding[symbol]) * probabilities[i]
@@ -42,7 +42,7 @@ def huffman(symbols, probabilities, n=2):
 
     if dummy_leaves != 0:
         for i in range(dummy_leaves):
-            symbols.append(f"DUMMY_{i+1}")
+            symbols.append("□")
             probabilities.append(0.0)
 
     heap = [HuffmanNode([s], p) for s, p in zip(symbols, probabilities)]
@@ -57,7 +57,7 @@ def huffman(symbols, probabilities, n=2):
         for _ in range(min(n, len(heap))):
             child = heapq.heappop(heap)
             new_node.children.append(child)
-            new_node.symbols.extend([s for s in child.symbols if not s.startswith("DUMMY_")])
+            new_node.symbols.extend([s for s in child.symbols if not s.startswith("□")])
             new_node.probability += child.probability
             children.append((child.symbols, child.probability))
 
@@ -82,7 +82,7 @@ def huffman(symbols, probabilities, n=2):
     root = heap[0]
     encoding = assign_codes(root)
 
-    encoding = {k: v for k, v in encoding.items() if not k.startswith("DUMMY_")}
+    encoding = {k: v for k, v in encoding.items() if not k.startswith("□")}
 
     h_f = get_entropy(probabilities, n)
 

@@ -136,16 +136,6 @@ const HuffmanTree = ({ steps, n, entropy, avgLength, efficiency }) => {
             Next
           </button>
         </div>
-        {/* Display Entropy, Average Length, and Efficiency */}
-        <Markdown rehypePlugins={[rehypeKatex]}>
-          {`
-            $H(\\mathcal{F}) = ${entropy}$
-
-            $L(C) = ${avgLength}$
-
-            $\\eta = \\frac{H(\\mathcal{F})}{L(C)} = ${efficiency}$
-          `}
-        </Markdown>
       </div>
     </div>
   );

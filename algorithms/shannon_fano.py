@@ -57,5 +57,6 @@ def shannon_fano(symbols, probabilities):
     divide_and_assign(items)
     entropy = get_entropy(probabilities,2)
     average_length = get_average_length(codes, probabilities, symbols)
-    return {"encoding": codes, "steps": steps, "entropy": entropy, "average_length": average_length, "efficiency": entropy/average_length}
+    efficiency = entropy / average_length
+    return {"encoding": codes, "steps": steps, "entropy": entropy, "average_length": average_length, "efficiency": efficiency}
 
