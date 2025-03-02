@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import Layout from "../components/Layout";
 import axios from "axios";
-import HuffmanTree from "../components/HuffmanTree"; // Import the D3 tree component
+import TunstallTree from "../components/TunstallTree";
+import Layout from "../components/Layout";
 
-const HuffmanPage = () => {
+const TunstallPage = () => {
   const [inputs, setInputs] = useState([{ symbol: "", probability: "" }]);
   const [n, setN] = useState(2);
+  const [length, setLength] = useState(3);
   const [treeData, setTreeData] = useState(null);
   const [error, setError] = useState("");
   const [currentStep, setCurrentStep] = useState(0); // Track the current step
@@ -47,6 +48,10 @@ const HuffmanPage = () => {
       return "El valor de aridad (n) debe ser un número entero mayor o igual a 2.";
     }
 
+    if (!Number.isInteger(length) || length < 1) {
+      return "La longitud del código debe ser un número entero mayor o igual a 1.";
+    }
+
     return null;
   };
 
@@ -64,44 +69,39 @@ const HuffmanPage = () => {
       const symbolsArray = inputs.map((input) => input.symbol.trim());
       const probabilitiesArray = inputs.map((input) => parseFloat(input.probability));
 
-      const response = await axios.post("http://localhost:8000/huffman", {
+      const response = await axios.post("http://localhost:8000/tunstall", {
         symbols: symbolsArray,
         probabilities: probabilitiesArray,
         n: n,
+        length: length,
       });
 
       setTreeData(response.data);
+      console.log("Tree Data:", response.data); // Debugging
       setCurrentStep(0); // Reset to the first step
     } catch (err) {
-      setError(err.message || "Error procesando la codificación de Huffman.");
+      setError(err.message || "Error procesando la codificación de Tunstall.");
     }
   };
 
   const handleNextStep = () => {
+    console.log("Next Step:", currentStep + 1); // Debugging
     if (treeData && currentStep < treeData.steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
   };
 
   const handlePreviousStep = () => {
+    console.log("Previous Step:", currentStep - 1); // Debugging
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
   };
 
-  // Reset function
-  const handleReset = () => {
-    setInputs([{ symbol: "", probability: "" }]); // Reset to one empty input
-    setN(2); // Reset arity to default value
-    setTreeData(null); // Clear tree data
-    setError(""); // Clear any errors
-    setCurrentStep(0); // Reset step counter
-  };
-
   return (
     <Layout>
       <div className="max-w-40xl lg:max-w-5xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-lg">
-        <h2 className="text-xl font-bold mb-4">Codificación de Huffman</h2>
+        <h2 className="text-xl font-bold mb-4">Codificación de Tunstall</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           {inputs.map((input, index) => (
             <div key={index} className="flex space-x-2">
@@ -129,51 +129,46 @@ const HuffmanPage = () => {
             + Añadir símbolo
           </button>
           <div>
-            <label className="block mb-1">Aridad del árbol</label>
+            <label className="block mb-1">Aridad del árbol (n)</label>
             <input
               type="number"
-              value={n === 0 ? "" : n}
-              onChange={(e) => {
-                const newValue = e.target.value;
-                if (newValue === "") {
-                  setN("");
-                } else {
-                  const parsed = parseFloat(newValue);
-                  if (!isNaN(parsed) && parsed >= 2) {
-                    setN(parsed);
-                  }
-                }
-              }}
+              value={n}
+              onChange={(e) => setN(parseInt(e.target.value))}
               min="2"
               step="1"
               className="w-full p-2 rounded bg-gray-700 text-white"
               required
             />
           </div>
-          <div className="flex space-x-2">
-            <button
-              type="submit"
-              className="w-1/2 p-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold"
-            >
-              Codificar
-            </button>
-            <button
-              type="button"
-              onClick={handleReset}
-              className="w-1/2 p-2 bg-red-600 hover:bg-red-500 rounded-lg font-bold"
-            >
-              Reiniciar
-            </button>
+          <div>
+            <label className="block mb-1">Longitud del código</label>
+            <input
+              type="number"
+              value={length}
+              onChange={(e) => setLength(parseInt(e.target.value))}
+              min="1"
+              step="1"
+              className="w-full p-2 rounded bg-gray-700 text-white"
+              required
+            />
           </div>
+          <button
+            type="submit"
+            className="w-full p-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold"
+          >
+            Codificar
+          </button>
         </form>
         {error && <p className="text-red-400 mt-4">{error}</p>}
         {treeData && (
           <div>
-            <h2 className="text-lg font-semibold mt-4">Árbol de Huffman:</h2>
+            <h2 className="text-lg font-semibold mt-4">Árbol de Tunstall:</h2>
             <div style={{ width: "100%", height: "500px" }}>
-              <HuffmanTree data={treeData.steps[currentStep].tree} />
+              <TunstallTree data={treeData.steps} currentStep={currentStep} /> {/* Pass currentStep */}
             </div>
-            <p className="mt-4 text-gray-400">{treeData.steps[currentStep].description}</p>
+            <p className="mt-4 text-gray-400">
+              {treeData.steps[currentStep].description}
+            </p>
             <div className="flex justify-between mt-4">
               <button
                 onClick={handlePreviousStep}
@@ -193,17 +188,15 @@ const HuffmanPage = () => {
             <h2 className="text-lg font-semibold mt-4">Codificación:</h2>
             <div className="bg-gray-700 p-4 rounded-lg">
               <ul>
-                {Object.entries(treeData.encoding).map(([symbol, code]) => (
-                  <li key={symbol} className="text-white">
-                    <strong>{symbol}:</strong> <span className="font-mono text-yellow-300">{code}</span>
+                {treeData.encoding.map((item, index) => (
+                  <li key={index} className="text-white">
+                    <strong>{item.Word}:</strong> <span className="font-mono text-yellow-300">{item.Code}</span>
                   </li>
                 ))}
               </ul>
             </div>
             <h2 className="text-lg font-semibold mt-4">Métricas:</h2>
             <p><strong>Entropía:</strong> {treeData.entropy ? treeData.entropy + " bits" : "N/A"}</p>
-            <p><strong>Longitud Promedio:</strong> {treeData.average_length ? treeData.average_length + " bits/símbolo" : "N/A"}</p>
-            <p><strong>Eficiencia:</strong> {treeData.efficiency ? (treeData.efficiency).toFixed(2) + "%" : "N/A"}</p>
           </div>
         )}
       </div>
@@ -211,4 +204,4 @@ const HuffmanPage = () => {
   );
 };
 
-export default HuffmanPage;
+export default TunstallPage;

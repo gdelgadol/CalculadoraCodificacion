@@ -38,9 +38,8 @@ function SardinasPattersonPage() {
 
   return (
     <Layout>
-      <div className="w-full max-w-4xl">
+      <div className="max-w-40xl lg:max-w-5xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-lg">
         <h1 className="text-2xl font-bold mb-4">Algoritmo de Sardinas-Patterson</h1>
-        
         {words.map((word, index) => (
           <input
             key={index}
