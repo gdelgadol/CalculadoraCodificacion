@@ -35,7 +35,7 @@ def get_average_length(encoding, probabilities, symbols):
 
 def huffman(symbols, probabilities, n=2):
     if n < 2:
-        raise ValueError("n debe ser mayor o igual a 2 para un árbol de Huffman válido.")
+        raise ValueError("n must be at least 2 for a valid Huffman tree.")
 
     num_leaves = len(symbols)
     dummy_leaves = (num_leaves - 1) % (n - 1)
@@ -49,7 +49,8 @@ def huffman(symbols, probabilities, n=2):
     heapq.heapify(heap)
 
     steps = []
-
+    full_tree = {s: {"symbols": [s], "probability": p} for s, p in zip(symbols, probabilities)}
+    
     while len(heap) > 1:
         new_node = HuffmanNode([], 0)
         children = []
@@ -62,11 +63,11 @@ def huffman(symbols, probabilities, n=2):
             children.append((child.symbols, child.probability))
 
         heapq.heappush(heap, new_node)
-
-        steps.append({
-            "merged": children,
-            "new_node": {"symbols": new_node.symbols, "probability": new_node.probability}
-        })
+        
+        new_node_id = "".join(new_node.symbols)
+        full_tree[new_node_id] = {"symbols": new_node.symbols, "probability": new_node.probability, "children": children}
+        
+        steps.append({"tree": full_tree.copy()})
 
     def assign_codes(node, prefix=""):
         if not node.children:
@@ -85,9 +86,7 @@ def huffman(symbols, probabilities, n=2):
     encoding = {k: v for k, v in encoding.items() if not k.startswith("□")}
 
     h_f = get_entropy(probabilities, n)
-
     av_length = get_average_length(encoding, probabilities, symbols)
-    
-    efficiency = round((h_f / av_length) * 100, 3)
+    efficiency = (h_f / av_length)
 
     return {"encoding": encoding, "steps": steps, "entropy": h_f, "average_length": av_length, "efficiency": efficiency}

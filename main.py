@@ -11,7 +11,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Ensure correct frontend URL
+    allow_origins=["*"],  # Ensure correct frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,7 +41,7 @@ async def home():
 @app.post("/shannon-fano")
 async def encode_shannon_fano(data: ShannonFanoInput):
     result = shannon_fano(data.symbols, data.probabilities)
-    return {"encoding": result}
+    return result
 
 @app.post("/huffman")
 async def encode_huffman(data: HuffmanInput):
