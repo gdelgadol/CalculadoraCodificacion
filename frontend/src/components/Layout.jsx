@@ -12,10 +12,11 @@ const Layout = ({ children }) => {
       {/* Header */}
       <header className="bg-gray-800 p-4 shadow-md">
         <nav className="container mx-auto flex flex-wrap justify-between items-center">
-          <h1 className="text-5xl font-bold">
-            <a href="/">Codificación</a>
-          </h1>
-
+        <h1 className="text-5xl font-bold">
+          <a href="/">
+            <img src="/src/sardines_4900733.png" alt="Home" className="w-20 h-20" />
+          </a>
+        </h1>
           {/* Burger Menu Button */}
           <button
             className="md:hidden text-white focus:outline-none"

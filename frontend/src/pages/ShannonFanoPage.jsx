@@ -56,12 +56,12 @@ function ShannonFanoPage() {
           Este proceso continúa hasta que cada símbolo recibe un código único, permitiendo una codificación eficiente.
         </p>
         {symbols.map((symbol, index) => (
-          <div key={index} className="flex flex-col md:flex-row md:space-x-2">
+          <div key={index} className="flex space-x-4 space-y-2">
             <input
               type="text"
               value={symbol}
               onChange={(e) => updateSymbol(index, e.target.value)}
-              className="w-full md:w-1/2 bg-gray-800 p-2 rounded-md text-white my-2"
+              className="w-1/2 p-2 rounded bg-gray-700 text-white"
               placeholder={`Símbolo ${index + 1}`}
             />
             <input
@@ -69,7 +69,7 @@ function ShannonFanoPage() {
               step="any"
               value={probabilities[index]}
               onChange={(e) => updateProbability(index, e.target.value)}
-              className="w-full md:w-1/2 bg-gray-800 p-2 rounded-md text-white my-2"
+              className="w-1/2 p-2 rounded bg-gray-700 text-white"
               placeholder={`Probabilidad ${index + 1}`}
             />
           </div>

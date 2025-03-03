@@ -17,6 +17,12 @@ function SardinasPattersonPage() {
     setWords(newWords);
   };
 
+  const removeWord = (index) => {
+    if (words.length > 2) {
+      setWords(words.filter((_, i) => i !== index));
+    }
+  };
+
   const submitWords = async () => {
     try {
       const response = await axios.post(
@@ -41,23 +47,34 @@ function SardinasPattersonPage() {
       <div className="max-w-40xl lg:max-w-5xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-lg">
         <h1 className="text-2xl font-bold mb-4">Teorema de Sardinas-Patterson</h1>
         <p className="text-gray-300 mb-4">
-          El algoritmo, o teorema, de Sardinas-Patterson es un procedimiento para determinar si un conjunto de palabras código es libre de prefijos, o univocamente decodificable.
+          El algoritmo, o teorema, de Sardinas-Patterson es un procedimiento para determinar si un conjunto de palabras código es libre de prefijos, o unívocamente decodificable.
           Se basa en construir iterativamente conjuntos de sufijos eliminando prefijos hasta detectar una intersección con el conjunto original,
           lo que indica que el código no es unívocamente decodificable. De lo contrario, se concluye que el código es libre de prefijos cuando se generen conjuntos de manera cíclica y,
           al hacer la intersección, el resultado es el conjunto vacío.
         </p>
-        {words.map((word, index) => (
-          <input
-            key={index}
-            type="text"
-            value={word}
-            onChange={(e) => updateWord(index, e.target.value)}
-            className="block w-full bg-gray-800 p-2 rounded-md text-white my-2"
-            placeholder={`Palabra código ${index + 1}`}
-          />
-        ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {words.map((word, index) => (
+            <div key={index} className="flex items-center space-x-2">
+              <input
+                type="text"
+                value={word}
+                onChange={(e) => updateWord(index, e.target.value)}
+                className="w-full p-2 rounded bg-gray-700 text-white"
+                placeholder={`Palabra código ${index + 1}`}
+              />
+              {words.length > 2 && (
+                <button
+                  onClick={() => removeWord(index)}
+                  className="text-red-400"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
 
-        <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+        <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 space-y-2 mt-4">
           <button onClick={addWord} className="bg-blue-500 px-4 py-2 rounded-md">Agregar palabra</button>
           <button onClick={submitWords} className="bg-green-500 px-4 py-2 rounded-md">Verificar</button>
           <button onClick={resetWords} className="bg-red-500 px-4 py-2 rounded-md">Resetear</button>
