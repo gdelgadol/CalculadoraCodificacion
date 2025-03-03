@@ -13,12 +13,6 @@ class TunstallNode:
 def get_entropy(probabilities, n):
     return (-sum(p * math.log2(p) for p in probabilities)) / math.log2(n)
 
-def get_average_length(encoding, probabilities, symbols):
-    sum = 0
-    for i in range(len(probabilities)):
-        sum += len(encoding[symbols[i]]) * probabilities[i]
-    return sum
-
 def get_leaves(node):
     if not node.children:
         return [node]
@@ -26,6 +20,21 @@ def get_leaves(node):
     for child in node.children:
         leaves.extend(get_leaves(child))
     return leaves
+
+def get_average_length(codebook, probabilities, symbols_list):
+    total = 0
+    for entry in codebook:
+        word = entry["Word"]
+        code_length = len(word)
+        word_probability = 1
+        for symbol in word:
+            symbol_index = symbols_list.index(symbol)
+            word_probability *= probabilities[symbol_index]
+        total += code_length * word_probability
+    return total
+
+def get_efficiency(entropy, average_length, n, length):
+    return (entropy * average_length) / math.log2(n ** length)
 
 def tunstall(symbols, probabilities, n, length):
     if n < 2:
@@ -102,9 +111,14 @@ def tunstall(symbols, probabilities, n, length):
 
     # Calculate entropy
     entropy = get_entropy(probabilities, n)
-
+    average_length = get_average_length(codebook, probabilities, symbols)
+    print(average_length)
+    efficiency = get_efficiency(entropy, average_length, n, length)
+    print(efficiency)
     return {
         "encoding": codebook,
         "steps": steps,  # Includes the initial step and all subsequent steps
-        "entropy": entropy
+        "entropy": entropy,
+        "average_length": average_length,
+        "efficiency": efficiency
     }

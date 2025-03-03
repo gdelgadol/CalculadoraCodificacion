@@ -102,6 +102,11 @@ const HuffmanPage = () => {
     <Layout>
       <div className="max-w-40xl lg:max-w-5xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-lg">
         <h2 className="text-xl font-bold mb-4">Codificación de Huffman</h2>
+        <p className="text-gray-300 mb-4">
+          El algoritmo de Huffman es un método de compresión sin pérdida que asigna códigos binarios de longitud variable a los símbolos de una fuente,
+          de manera que los símbolos más frecuentes tengan códigos más cortos. Se construye un árbol de Huffman fusionando los símbolos de menor probabilidad
+          en cada iteración hasta formar una única estructura jerárquica. Este algoritmo es ampliamente utilizado en la compresión de datos y transmisión eficiente.
+        </p>
         <form onSubmit={handleSubmit} className="space-y-4">
           {inputs.map((input, index) => (
             <div key={index} className="flex space-x-2">

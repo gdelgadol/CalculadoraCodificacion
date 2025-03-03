@@ -50,7 +50,11 @@ function ShannonFanoPage() {
     <Layout>
       <div className="max-w-40xl lg:max-w-5xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-lg">
         <h1 className="text-2xl font-bold mb-4">Shannon-Fano</h1>
-
+        <p className="text-gray-300 mb-4">
+          El algoritmo de Shannon-Fano es un método de compresión sin pérdida que asigna códigos de longitud variable a los símbolos de una fuente.
+          Se basa en dividir recursivamente el conjunto de símbolos en dos grupos de probabilidades similares, asignando 0 y 1 a cada partición.
+          Este proceso continúa hasta que cada símbolo recibe un código único, permitiendo una codificación eficiente.
+        </p>
         {symbols.map((symbol, index) => (
           <div key={index} className="flex flex-col md:flex-row md:space-x-2">
             <input

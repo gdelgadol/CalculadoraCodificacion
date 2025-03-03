@@ -12,7 +12,7 @@ const Layout = ({ children }) => {
       {/* Header */}
       <header className="bg-gray-800 p-4 shadow-md">
         <nav className="container mx-auto flex flex-wrap justify-between items-center">
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-5xl font-bold">
             <a href="/">Codificación</a>
           </h1>
 
@@ -66,7 +66,6 @@ const Layout = ({ children }) => {
 
       {/* Footer */}
       <footer className="bg-gray-800 p-4 text-center text-gray-400 text-xs md:text-sm">
-        <p>Creado por Gabriel Santiago Delgado Lozano</p>
         <p>Teoría de Codificación | 2024-2 | Universidad Nacional de Colombia</p>
       </footer>
     </div>

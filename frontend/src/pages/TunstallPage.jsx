@@ -102,6 +102,11 @@ const TunstallPage = () => {
     <Layout>
       <div className="max-w-40xl lg:max-w-5xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-lg">
         <h2 className="text-xl font-bold mb-4">Codificación de Tunstall</h2>
+        <p className="text-gray-300 mb-4">
+          El algoritmo de Tunstall es un método de compresión sin pérdida que genera códigos de longitud fija a partir de una fuente de longitud variable.
+          Se basa en la construcción de un árbol en el que los símbolos más probables se expanden iterativamente hasta alcanzar el número máximo de nodos permitido.
+          A diferencia de Huffman, Tunstall permite una decodificación más rápida, ya que todos los códigos generados tienen la misma longitud.
+        </p>
         <form onSubmit={handleSubmit} className="space-y-4">
           {inputs.map((input, index) => (
             <div key={index} className="flex space-x-2">
@@ -196,7 +201,9 @@ const TunstallPage = () => {
               </ul>
             </div>
             <h2 className="text-lg font-semibold mt-4">Métricas:</h2>
-            <p><strong>Entropía:</strong> {treeData.entropy ? treeData.entropy + " bits" : "N/A"}</p>
+            <p><strong>Entropía:</strong> {treeData.entropy ? (treeData.entropy).toFixed(4) + " bits" : "N/A"}</p>
+            <p><strong>Longitud Promedio:</strong> {treeData.average_length ? (treeData.average_length).toFixed(4) + " bits/símbolo" : "N/A"}</p>
+            <p><strong>Eficiencia:</strong> {treeData.efficiency ? (treeData.efficiency * 100).toFixed(2) + "%" : "N/A"}</p>
           </div>
         )}
       </div>

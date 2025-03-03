@@ -39,7 +39,13 @@ function SardinasPattersonPage() {
   return (
     <Layout>
       <div className="max-w-40xl lg:max-w-5xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-lg">
-        <h1 className="text-2xl font-bold mb-4">Algoritmo de Sardinas-Patterson</h1>
+        <h1 className="text-2xl font-bold mb-4">Teorema de Sardinas-Patterson</h1>
+        <p className="text-gray-300 mb-4">
+          El algoritmo, o teorema, de Sardinas-Patterson es un procedimiento para determinar si un conjunto de palabras código es libre de prefijos, o univocamente decodificable.
+          Se basa en construir iterativamente conjuntos de sufijos eliminando prefijos hasta detectar una intersección con el conjunto original,
+          lo que indica que el código no es unívocamente decodificable. De lo contrario, se concluye que el código es libre de prefijos cuando se generen conjuntos de manera cíclica y,
+          al hacer la intersección, el resultado es el conjunto vacío.
+        </p>
         {words.map((word, index) => (
           <input
             key={index}
