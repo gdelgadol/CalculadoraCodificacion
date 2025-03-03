@@ -4,6 +4,7 @@ from algorithms.shannon_fano import shannon_fano
 from algorithms.huffman import huffman
 from algorithms.tunstall import tunstall
 from algorithms.sardinas_patterson import sardinas_patterson_theorem
+from algorithms.linear_codes import generate_codes
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -34,6 +35,11 @@ class TunstallInput(BaseModel):
     n: int
     length: int
 
+class LinearCodesInput(BaseModel):
+    P: int
+    n: int
+    gen_matrix_raw: list[list[int]]
+
 @app.get("/")
 async def home():
     return {"message": "Algorithm Visualizer API"}
@@ -51,6 +57,11 @@ async def encode_huffman(data: HuffmanInput):
 @app.post("/tunstall")
 async def encode_tunstall(data: TunstallInput):
     result = tunstall(data.symbols, data.probabilities, data.n, data.length)
+    return result
+
+@app.post("/linear-codes")
+async def generate_linear_codes(data: LinearCodesInput):
+    result = generate_codes(data.P, data.n, data.gen_matrix_raw)
     return result
 
 @app.post("/sardinas-patterson")

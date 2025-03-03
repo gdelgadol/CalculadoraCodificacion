@@ -52,8 +52,8 @@ const Layout = ({ children }) => {
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-gray-400 block md:inline-block py-2 md:py-0">
-                Códigos Lineales (En construcción)
+              <a href="/linear-codes" className="hover:text-gray-400 block md:inline-block py-2 md:py-0">
+                Códigos Lineales
               </a>
             </li>
           </ul>
