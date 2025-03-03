@@ -5,175 +5,181 @@ import Layout from "../components/Layout";
 const LinearCodesPage = () => {
   const [p, setP] = useState(2);
   const [n, setN] = useState(3);
-  const [numCols, setNumCols] = useState(n); // Agregado
-  const [generatorMatrix, setGeneratorMatrix] = useState([]);
+  const [matrixInput, setMatrixInput] = useState("");
   const [codes, setCodes] = useState([]);
+  const [minWeight, setMinWeight] = useState(null);
+  const [maxDetect, setMaxDetect] = useState(null);
+  const [maxCorrect, setMaxCorrect] = useState(null);
+  const [sisMatrix, setSisMatrix] = useState([]);
+  const [hMatrix, setHMatrix] = useState([]);
+  const [showCodes, setShowCodes] = useState(false);
 
-  const handleMatrixChange = (row, col, value) => {
-    const newMatrix = [...generatorMatrix];
-    newMatrix[row][col] = parseInt(value) || 0;
-    setGeneratorMatrix(newMatrix);
+  const handleMatrixChange = (e) => {
+    setMatrixInput(e.target.value);
   };
 
-  const addRow = () => {
-    setGeneratorMatrix([...generatorMatrix, new Array(numCols).fill(0)]);
-  };
-
-  const removeRow = () => {
-    if (generatorMatrix.length > 1) {
-      setGeneratorMatrix(generatorMatrix.slice(0, -1));
-    }
+  const parseMatrix = () => {
+    return matrixInput
+      .trim()
+      .split("\n")
+      .map((line) =>
+        line
+          .trim()
+          .split(" ")
+          .map((num) => parseInt(num, 10) || 0)
+      );
   };
 
   const fetchCodes = async () => {
+    const generatorMatrix = parseMatrix();
     try {
       const response = await axios.post("http://localhost:8000/linear-codes", {
-        p,
-        n,
+        p: parseInt(p, 10),
+        n: parseInt(n, 10),
         generator_matrix: generatorMatrix,
       });
-      setCodes(response.data.codes);
+
+      const data = response.data;
+
+      setCodes(data.codes || []);
+      setMinWeight(data.min_weight || null);
+      setMaxDetect(data.max_detect || null);
+      setMaxCorrect(data.max_correct || null);
+      setSisMatrix(data.sis_matrix || []);
+      setHMatrix(data.H_matrix || []);
     } catch (error) {
       console.error("Error fetching codes", error);
     }
   };
 
+  // Función para reiniciar todos los valores
+  const handleReset = () => {
+    setP(2);
+    setN(3);
+    setMatrixInput("");
+    setCodes([]);
+    setMinWeight(null);
+    setMaxDetect(null);
+    setMaxCorrect(null);
+    setSisMatrix([]);
+    setHMatrix([]);
+    setShowCodes(false);
+  };
+
+  const renderMatrix = (matrix) => {
+    return (
+      <table className="border-collapse border border-gray-600 w-full text-center text-sm">
+        <tbody>
+          {matrix.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {row.map((cell, cellIndex) => (
+                <td key={cellIndex} className="border border-gray-500 p-1">
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  };
+
   return (
     <Layout>
-      <div className="max-w-40xl lg:max-w-5xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-lg">
+      <div className="max-w-3xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-lg">
         <h1 className="text-2xl font-bold mb-4">Códigos Lineales</h1>
-        <p className="mb-4">
-          Genera códigos lineales a partir de un campo finito <strong>GF(P^n)</strong> y una matriz generadora.
-        </p>
-        <div className="flex gap-4">
+        {/* Campos de entrada */}
+        <div className="flex gap-4 mb-4">
           <div className="flex-1">
             <label className="block mb-1">P</label>
             <input
               type="number"
-              value={p === 0 ? "" : p}
-              onChange={(e) => {
-                const newValue = e.target.value;
-                if (newValue === "") {
-                  setP("");
-                } else {
-                  const parsed = parseFloat(newValue);
-                  if (!isNaN(parsed) && parsed >= 2) {
-                    setP(parsed);
-                  }
-                }
-              }}
+              value={p}
+              onChange={(e) => setP(Math.max(2, parseInt(e.target.value, 10) || 2))}
               min="2"
               step="1"
               className="w-full p-2 rounded bg-gray-700 text-white"
-              required
             />
           </div>
-
           <div className="flex-1">
             <label className="block mb-1">n</label>
             <input
               type="number"
-              value={n === 0 ? "" : n}
-              onChange={(e) => {
-                const newValue = e.target.value;
-                if (newValue === "") {
-                  setN("");
-                } else {
-                  const parsed = parseFloat(newValue);
-                  if (!isNaN(parsed) && parsed >= 1) {
-                    setN(parsed);
-                  }
-                }
-              }}
-              min="2"
+              value={n}
+              onChange={(e) => setN(Math.max(1, parseInt(e.target.value, 10) || 1))}
+              min="1"
               step="1"
               className="w-full p-2 rounded bg-gray-700 text-white"
-              required
             />
           </div>
         </div>
 
-        <div className="mt-4">
-          <label>Número de columnas:</label>
-          <input
-            type="number"
-            min="1"
-            value={numCols}
-            onChange={(e) => {
-              const newNumCols = parseInt(e.target.value, 10);
-              if (!isNaN(newNumCols) && newNumCols > 0) {
-                setNumCols(newNumCols);
-                setGeneratorMatrix((prevMatrix) =>
-                  prevMatrix.map((row) =>
-                    row.length < newNumCols
-                      ? [...row, ...new Array(newNumCols - row.length).fill(0)]
-                      : row.slice(0, newNumCols)
-                  )
-                );
-              }
-            }}
-            className="text-black w-16 px-2 py-1 rounded"
-          />
-        </div>
+        <label className="block mb-2">
+          Matriz Generadora (separar números con espacio, nueva línea para otro vector)
+        </label>
+        <textarea
+          value={matrixInput}
+          onChange={handleMatrixChange}
+          className="w-full p-2 rounded bg-gray-700 text-white h-32"
+          placeholder="1 0 1\n0 1 0\n1 1 0"
+        />
 
-        <table className="border-collapse border border-white mt-4">
-          <tbody>
-            {generatorMatrix.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {Array.from({ length: numCols }).map((_, colIndex) => (
-                  <td key={colIndex} className="border border-white p-2">
-                    <input
-                      type="number"
-                      value={row[colIndex] === null ? "" : row[colIndex]} // Permite el campo vacío
-                      onChange={(e) => {
-                        let newValue = e.target.value;
-
-                        if (newValue === "") {
-                          handleMatrixChange(rowIndex, colIndex, null); // Permitir borrar
-                          return;
-                        }
-
-                        let parsedValue = parseInt(newValue, 10);
-                        let maxValue = Math.pow(p, n);
-
-                        if (!isNaN(parsedValue)) {
-                          parsedValue = Math.min(Math.max(parsedValue, 0), maxValue); // Limitar rango
-                          handleMatrixChange(rowIndex, colIndex, parsedValue);
-                        }
-                      }}
-                      onBlur={() => {
-                        // Si el usuario deja el campo vacío, restablecer a 0
-                        if (row[colIndex] === null) {
-                          handleMatrixChange(rowIndex, colIndex, 0);
-                        }
-                      }}
-                      className="text-black w-12 px-2 py-1 rounded"
-                    />
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <div className="mt-4">
-          <button onClick={addRow} className="bg-green-500 px-4 py-2 rounded mr-2 font-bold">
-            Añadir fila
-          </button>
-          <button onClick={removeRow} className="bg-red-500 px-4 py-2 rounded mr-2 font-bold">
-            Eliminar fila
-          </button>
+        <div className="mt-4 flex gap-2">
           <button onClick={fetchCodes} className="bg-blue-500 px-4 py-2 rounded font-bold">
             Generar Códigos
           </button>
+          <button onClick={handleReset} className="bg-red-500 px-4 py-2 rounded font-bold">
+            Reiniciar
+          </button>
         </div>
-        <div className="mt-6">
-          <h2 className="text-xl font-bold">Códigos Generados</h2>
-          <ul className="list-disc ml-6">
-            {codes.map((code, index) => (
-              <li key={index} className="mt-1">{code}</li>
-            ))}
-          </ul>
+
+        {/* Sección colapsable */}
+        <div className="p-6 bg-gray-900 text-white mt-6 rounded-lg">
+          <button
+            onClick={() => setShowCodes(!showCodes)}
+            className="bg-gray-700 px-4 py-2 rounded font-bold w-full text-left"
+          >
+            {showCodes ? "Ocultar códigos generados" : "Mostrar códigos generados"}
+          </button>
+
+          {showCodes && (
+            <ul className="mt-2 space-y-2">
+              {codes.length > 0 ? (
+                codes.map((code, index) => (
+                  <li key={index} className="bg-gray-800 p-2 rounded-lg">
+                    <strong>z:</strong> {code.z_con},{" "}
+                    <strong>zG:</strong> {code.codeword},{" "}
+                    <strong>Peso:</strong> {code.weight}
+                  </li>
+                ))
+              ) : (
+                <p className="text-gray-400">No hay códigos generados.</p>
+              )}
+            </ul>
+          )}
+        </div>
+
+        {/* Sección de métricas */}
+        <div className="bg-gray-800 p-4 rounded-lg mt-4">
+          <p>
+            <strong>Peso mínimo:</strong> {minWeight !== null ? minWeight : "N/A"}
+          </p>
+          <p>
+            <strong>Máx. detección de errores:</strong> {maxDetect !== null ? maxDetect : "N/A"}
+          </p>
+          <p>
+            <strong>Máx. corrección de errores:</strong> {maxCorrect !== null ? maxCorrect : "N/A"}
+          </p>
+
+          <div className="mt-4">
+            <p className="font-semibold">Matriz generadora (SIS):</p>
+            {sisMatrix.length > 0 ? renderMatrix(sisMatrix) : <p>N/A</p>}
+          </div>
+
+          <div className="mt-4">
+            <p className="font-semibold">Matriz de paridad (H):</p>
+            {hMatrix.length > 0 ? renderMatrix(hMatrix) : <p>N/A</p>}
+          </div>
         </div>
       </div>
     </Layout>

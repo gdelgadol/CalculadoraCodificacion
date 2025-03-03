@@ -35,10 +35,10 @@ class TunstallInput(BaseModel):
     n: int
     length: int
 
-class LinearCodesInput(BaseModel):
-    P: int
+class LinearCodeInput(BaseModel):
+    p: int
     n: int
-    gen_matrix_raw: list[list[int]]
+    generator_matrix: list[list[int]]
 
 @app.get("/")
 async def home():
@@ -60,9 +60,8 @@ async def encode_tunstall(data: TunstallInput):
     return result
 
 @app.post("/linear-codes")
-async def generate_linear_codes(data: LinearCodesInput):
-    result = generate_codes(data.P, data.n, data.gen_matrix_raw)
-    return result
+def calculate_linear_codes(data: LinearCodeInput):
+    return generate_codes(data.p, data.n, data.generator_matrix)
 
 @app.post("/sardinas-patterson")
 async def check_decodability(data: list[str]):
