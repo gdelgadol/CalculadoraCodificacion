@@ -4,7 +4,7 @@ import axios from "axios";
 import HuffmanTree from "../components/HuffmanTree"; // Import the D3 tree component
 
 const HuffmanPage = () => {
-  const [inputs, setInputs] = useState([{ symbol: "", probability: "" }]);
+  const [inputs, setInputs] = useState([{ symbol: "", probability: "" }, { symbol: "", probability: "" }]);
   const [n, setN] = useState(2);
   const [treeData, setTreeData] = useState(null);
   const [error, setError] = useState("");
@@ -21,7 +21,7 @@ const HuffmanPage = () => {
   };
 
   const removeInput = (index) => {
-    if (inputs.length > 1) {
+    if (inputs.length > 2) {
       setInputs(inputs.filter((_, i) => i !== index));
     }
   };
@@ -40,7 +40,7 @@ const HuffmanPage = () => {
 
     const totalProbability = probabilitiesArray.reduce((sum, p) => sum + p, 0);
     if (Math.abs(totalProbability - 1) > 1e-6) {
-      return `La suma de las probabilidades debe ser 1. Actualmente es ${totalProbability.toFixed(6)}.`;
+      return "Las probabilidades deben sumar 1.";
     }
 
     if (!Number.isInteger(n) || n < 2) {
@@ -130,8 +130,8 @@ const HuffmanPage = () => {
               <button type="button" onClick={() => removeInput(index)} className="text-red-400">×</button>
             </div>
           ))}
-          <button type="button" onClick={addInput} className="w-full p-2 bg-green-600 hover:bg-green-500 rounded-lg font-bold">
-            + Añadir símbolo
+          <button type="button" onClick={addInput} className="w-full p-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold">
+            Añadir símbolo
           </button>
           <div>
             <label className="block mb-1">Aridad del árbol</label>
@@ -158,7 +158,7 @@ const HuffmanPage = () => {
           <div className="flex space-x-2">
             <button
               type="submit"
-              className="w-1/2 p-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold"
+              className="w-1/2 p-2 bg-green-600 hover:bg-green-500 rounded-lg font-bold"
             >
               Codificar
             </button>

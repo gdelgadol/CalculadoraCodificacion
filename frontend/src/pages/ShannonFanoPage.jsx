@@ -3,9 +3,10 @@ import axios from "axios";
 import Layout from "../components/Layout.jsx"; // Import the Layout component
 
 function ShannonFanoPage() {
-  const [symbols, setSymbols] = useState([""]);
-  const [probabilities, setProbabilities] = useState([""]);
+  const [symbols, setSymbols] = useState(["", ""]); // Start with at least two symbols
+  const [probabilities, setProbabilities] = useState(["", ""]); // Start with at least two probabilities
   const [result, setResult] = useState(null);
+  const [error, setError] = useState(""); // State for error messages
 
   const addSymbol = () => {
     setSymbols([...symbols, ""]);
@@ -24,26 +25,61 @@ function ShannonFanoPage() {
     setProbabilities(newProbabilities);
   };
 
+  const removeSymbol = (index) => {
+    if (symbols.length > 2) {
+      setSymbols(symbols.filter((_, i) => i !== index));
+      setProbabilities(probabilities.filter((_, i) => i !== index));
+    } else {
+      setError("Debe haber al menos dos símbolos.");
+    }
+  };
+
+  const validateProbabilities = () => {
+    const totalProbability = probabilities
+      .map((p) => parseFloat(p))
+      .reduce((sum, p) => sum + p, 0);
+    return Math.abs(totalProbability - 1) < 0.00001; // Account for floating-point precision
+  };
+
   const submitData = async () => {
+    setError(""); // Clear previous errors
+
+    // Validate at least two symbols
+    if (symbols.length < 2) {
+      setError("Debe haber al menos dos símbolos.");
+      return;
+    }
+
+    // Validate probabilities sum to 1
+    if (!validateProbabilities()) {
+      setError("Las probabilidades deben sumar 1.");
+      return;
+    }
+
     try {
-      const response = await axios.post("http://127.0.0.1:8000/shannon-fano", {
-        symbols,
-        probabilities: probabilities.map(Number),
-      }, {
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await axios.post(
+        "http://127.0.0.1:8000/shannon-fano",
+        {
+          symbols,
+          probabilities: probabilities.map(Number),
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
       setResult(response.data);
       console.log(response.data);
-      console.log(response.data.encoding);
     } catch (error) {
       console.error("Error sending data:", error);
+      setError("Error al enviar los datos. Inténtelo de nuevo.");
     }
   };
 
   const resetAllValues = () => {
-    setSymbols([""]);
-    setProbabilities([""]);
+    setSymbols(["", ""]); // Reset to at least two symbols
+    setProbabilities(["", ""]); // Reset to at least two probabilities
     setResult(null);
+    setError("");
   };
 
   return (
@@ -55,14 +91,23 @@ function ShannonFanoPage() {
           Se basa en dividir recursivamente el conjunto de símbolos en dos grupos de probabilidades similares, asignando 0 y 1 a cada partición.
           Este proceso continúa hasta que cada símbolo recibe un código único, permitiendo una codificación eficiente.
         </p>
+
+        {/* Error Message */}
+        {error && (
+          <div className="text-red-400">
+            {error}
+          </div>
+        )}
+
+        {/* Symbol and Probability Inputs */}
         {symbols.map((symbol, index) => (
-          <div key={index} className="flex space-x-4 space-y-2">
+          <div key={index} className="flex space-x-4 items-center space-y-2">
             <input
               type="text"
               value={symbol}
               onChange={(e) => updateSymbol(index, e.target.value)}
               className="w-1/2 p-2 rounded bg-gray-700 text-white"
-              placeholder={`Símbolo ${index + 1}`}
+              placeholder={"Símbolo"}
             />
             <input
               type="number"
@@ -70,32 +115,57 @@ function ShannonFanoPage() {
               value={probabilities[index]}
               onChange={(e) => updateProbability(index, e.target.value)}
               className="w-1/2 p-2 rounded bg-gray-700 text-white"
-              placeholder={`Probabilidad ${index + 1}`}
+              placeholder={"Probabilidad"}
             />
+            <button
+              onClick={() => removeSymbol(index)}
+              className="text-red-400 mt-4"
+              disabled={symbols.length <= 2} // Disable remove button if only two symbols
+            >
+              ×
+            </button>
           </div>
         ))}
 
+        {/* Buttons */}
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-          <button onClick={addSymbol} className="bg-blue-500 px-4 py-2 rounded-md">Añadir símbolo</button>
-          <button onClick={submitData} className="bg-green-500 px-4 py-2 rounded-md">Codificar</button>
-          <button onClick={resetAllValues} className="bg-red-500 px-4 py-2 rounded-md">Resetear</button>
+          <button
+            onClick={addSymbol}
+            className="bg-blue-500 px-4 py-2 rounded-md font-bold"
+          >
+            Añadir símbolo
+          </button>
+          <button
+            onClick={submitData}
+            className="bg-green-500 px-4 py-2 rounded-md font-bold"
+          >
+            Codificar
+          </button>
+          <button
+            onClick={resetAllValues}
+            className="bg-red-500 px-4 py-2 rounded-md font-bold"
+          >
+            Reiniciar
+          </button>
         </div>
 
+        {/* Result Display */}
         {result && (
           <div className="mt-4 p-4 bg-gray-800 rounded-md">
             <h2 className="text-xl font-semibold">Codificación:</h2>
             <ul>
               {symbols
-                  .map((symbol, index) => ({ symbol, probability: probabilities[index] }))
-                  .sort((a, b) => b.probability - a.probability) // Orden descendente por probabilidad
-                  .map(({ symbol, probability }) => (
+                .map((symbol, index) => ({ symbol, probability: probabilities[index] }))
+                .sort((a, b) => b.probability - a.probability) // Sort by probability
+                .map(({ symbol, probability }) => (
                   <li key={symbol}>
-                      {symbol} (<span className="text-yellow-300">{probability}</span>): 
-                      <span className="font-mono text-yellow-300"> {result.encoding[symbol]}</span>
+                    {symbol} (<span className="text-yellow-300">{probability}</span>):
+                    <span className="font-mono text-yellow-300"> {result.encoding[symbol]}</span>
                   </li>
-                  ))}
-             </ul>
+                ))}
+            </ul>
 
+            {/* Steps Table */}
             {result.steps && result.steps.length > 0 && (
               <>
                 <h2 className="text-lg font-semibold mt-4">Pasos:</h2>
@@ -122,6 +192,7 @@ function ShannonFanoPage() {
               </>
             )}
 
+            {/* Metrics */}
             <h2 className="text-lg font-semibold mt-4">Métricas:</h2>
             <p><strong>Entropía:</strong> {result.entropy ? (result.entropy).toFixed(4) + " bits" : "N/A"}</p>
             <p><strong>Longitud Promedio:</strong> {result.average_length ? (result.average_length).toFixed(4) + " bits/símbolo" : "N/A"}</p>

@@ -77,7 +77,7 @@ def tunstall(symbols, probabilities, n, length):
             heappush(heap, (-child.probability, child))
 
         # Add a description for this step
-        description = f"Expanded node '{node.code}' into: " + ", ".join(
+        description = f"Se expandió el nodo '{node.code}': " + ", ".join(
             [f"'{child.code}' (p={child.probability:.4f})" for child in new_children]
         )
         steps.append({

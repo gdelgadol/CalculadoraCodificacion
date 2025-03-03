@@ -38,8 +38,8 @@ function SardinasPattersonPage() {
   };
 
   const resetWords = () => {
-    setWords(["", ""]); // Reset to initial state (two empty fields)
-    setResult(null); // Clear the result
+    setWords(["", ""]);
+    setResult(null);
   };
 
   return (
@@ -75,9 +75,9 @@ function SardinasPattersonPage() {
         </div>
 
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 space-y-2 mt-4">
-          <button onClick={addWord} className="bg-blue-500 px-4 py-2 rounded-md">Agregar palabra</button>
-          <button onClick={submitWords} className="bg-green-500 px-4 py-2 rounded-md">Verificar</button>
-          <button onClick={resetWords} className="bg-red-500 px-4 py-2 rounded-md">Resetear</button>
+          <button onClick={addWord} className="bg-blue-500 px-4 py-2 rounded-md font-bold">Agregar palabra</button>
+          <button onClick={submitWords} className="bg-green-500 px-4 py-2 rounded-md font-bold">Verificar</button>
+          <button onClick={resetWords} className="bg-red-500 px-4 py-2 rounded-md font-bold">Reiniciar</button>
         </div>
 
         {result && (
